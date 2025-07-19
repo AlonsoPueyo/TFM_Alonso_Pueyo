@@ -1,63 +1,3 @@
-library(Rcmdr)
-library(dlnm)
-
-library(readr)
-momo <-read_csv("momo.csv")
-View(momo)
-
-
-help(mkbasis)
-length(momo$defunciones_atrib_exc_temp)
-  
-#La función mkbasis ya no se usa en las versiones recientes. Ahora se usa onebasis
-#1)
-mkbasis <- onebasis(momo$defunciones_atrib_exc_temp, fun='ns')
-summary(mkbasis)
-
-#mklagbasis tampoco existe ya.
-#2)
-mklagbasis <- onebasis(0:30, fun='ns')
-summary(mklagbasis)
-
-#Se puede reducir los dos primeros pasos a uno solo mediante el empleo de crossbasis:
-#3)
-help(crossbasis)
-base_cruzada <- crossbasis(momo$defunciones_atrib_exc_temp, lag=30, argvar=list(fun='ns', df=1),
-           arglag=list(fun='ns', df=1))
-summary(base_cruzada)
-
-#4)
-help(crosspred)
-  #Primero hay que ajustar un modelo para luego ponerlo en el argumento model de la
-  #función crosspred
-modelo <- lm(defunciones_atrib_exc_temp ~ base_cruzada, data=momo)
-summary(modelo)   #el modelo se suele ajustar según un modelo de Poisson
-
-
-prediccion_cruzada <- crosspred(base_cruzada, model=modelo)
-names(prediccion_cruzada)
-
-plot(prediccion_cruzada)
-plot(prediccion_cruzada, "slices", var=c(5,10,30))
-plot(prediccion_cruzada, "overall")
-plot(prediccion_cruzada, "contour")
-
-
-
-
-  #EL CÓDIGO DE ARRIBA ES PARA VER CÓMO FUNCIONA ESTA LIBRERÍA
-
-
-#--------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------
-
 library(readr)
 momo <-read_csv("momo.csv") 
 View(momo)
@@ -66,7 +6,7 @@ View(momo)
   #Primero leemos las temperaturas de Navarra
 library(Rcmdr)
 TempNavarra <- 
-  readXL("C:/Users/alons/OneDrive/Escritorio/Máster Modelización Alonso Pueyo/TFM/Trabajo/Datos Temperatura Navarra/TempNavarra.xlsx",
+  readXL("C:/Users/alons/OneDrive/Escritorio/Máster Modelización Alonso Pueyo/TFM/Trabajo/Datos/TempNavarra.xlsx",
          rownames=FALSE, header=TRUE, na="", sheet="Hoja1", stringsAsFactors=TRUE)
 
       #Hay algunos datos faltantes. En especial la temperatura media del 2020, aunque
@@ -94,13 +34,10 @@ TempNavarra$T_media[is.na(TempNavarra$T_media)] <- (
 which(is.na(TempNavarra$T_max))
 which(is.na(TempNavarra$T_media))
 which(is.na(TempNavarra$T_min))
-    #Hay 7 datos que no tienen ni Temp. máx, ni mín ni media..
+    #Hay 7 datos que no tienen ni Temp. máx, ni mín ni media
 
 
-
-
-#Ahora ya tenemos datos sobre las temperaturas en distintas fechas, y datos
-#sobre la mortalidad. Pasamos a hacer modelos y a estudiar la relación:
+#Juntamos todo en una misma base de datos:
 
 library(dlnm)
 library(dplyr)
@@ -121,143 +58,290 @@ Navarra_con_temp<-merge(Navarra, TempNavarra, by.x='fecha_defuncion', by.y='Fech
 #Hemos juntado los dos data frames. Ahora tenemos la temperatura que hubo en cada día
     # y todos los datos
 
-#------------------------------
+#-----
 
-#MODELO 1:
+#Mejoramos el análisis descriptivo:
 
-base1<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="ns", df=4))
-modelo1<-glm(Navarra_con_temp$defunciones_observadas ~ base1, family=quasipoisson())
-    #En el modelo me salen muchos avisos con family=poisson, pero no da error con quasipoisson()
-prediccion1<-crosspred(base1, model=modelo1)
-    #Me salía el eror: 'coef/vcov not consistent with basis matrix' porque en modelo
-    # hay que incluir la base como variable explicativa
+  #Ponemos todas las variables pertinentes en factor:
+names(Navarra_con_temp)
+
+Navarra_con_temp$cod_sexo<-as.factor(Navarra_con_temp$cod_sexo)
+Navarra_con_temp$nombre_sexo<-as.factor(Navarra_con_temp$nombre_sexo)
+Navarra_con_temp$cod_gedad<-as.factor(Navarra_con_temp$cod_gedad)
+Navarra_con_temp$nombre_gedad<-as.factor(Navarra_con_temp$nombre_gedad)
+
+summary(Navarra_con_temp)
+
+  #Las 89040 observaciones se dividen de igual manera entre los grupos (tanto de edad
+#   como por sexo). Esto pasa porque cada fila es un día por grupo de edad y de sexo.
+#   Pasa lo mismo con la base de datos MoMo.
+
+  #Notar que los valores de la media y la mediana de las temperaturas son parecidos,
+#   lo que indica que los datos están distribuidos, y no hay casos excepcionales.
+
+  #Al contrario ocurre con las defunciones_observadas (y las demás lo mismo). La
+#   media vale casi el doble que la mediana. Esto indica que hay datos extremos que
+#   suben la media. Esto puede deberse a que algunos días, después de mucho calor,
+#   por ejemplo, ha habido muchos más fallecidos que en días normales.
+
+#---
+
+  #Como vamos a estudiar según los grupos de edad, veamos las defunciones para
+#   cada grupo:
+
+tapply(Navarra_con_temp$defunciones_observadas,
+       Navarra_con_temp$cod_gedad,
+       sum, na.rm = FALSE)
+    #Los grupos más jovenes apenas tienen muertes, mientras que conforme se va
+#    aumentando la edad, se mueren más. Notar que hay un grupo +65 y otro
+#    65-74.
 
 
- #Ya tenemos una primera base, modelo y prediccion. Hacemos gráficos para ver qué está
-# ocurriendo, cómo evoluciona... Después, podemos probar con otras bases y modelos para
-# ver cuál es mejor, y una vez encontrado, dividir la población en distintos grupos
+#Hacemos algunos gráficos para ilustrar lo que ocurre:
 
-par(mfrow=c(1,2))
-plot(prediccion1, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion1, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado')
+#1)
+par(mfrow=c(1,3))
+hist(Navarra_con_temp$T_min, xlab='Temperatura mínima', ylab='Frecuencia', main='')
+hist(Navarra_con_temp$T_media, xlab='Temperatura media', ylab='Frecuencia', main='')
+hist(Navarra_con_temp$T_max, xlab='Temperatura máxima', ylab='Frecuencia', main='')
 par(mfrow=c(1,1))
+    #Esto acompaña a la distribución de las temperaturas. Tiene sentido. No
+#     hay muchos días con demasiado calor o demasiado frío
 
-plot(prediccion1, 'slices', lag=c(0,3,7))  
-  plot(prediccion1, 'slices', var=30) #los 'slices' son en realidad cortes de la superficie de antes
-plot(prediccion1, 'contour')
+#2)
+hist(Navarra_con_temp$defunciones_observadas, xlab='Defunciones observadas', ylab='Frecuencia', main='')
+    #Como ya habíamos dicho. Muchos días no hay defunciones, o muy pocas. Más
+#     defunciones=Menos frecuencia
 
-#------------------------------
+#3)
+plot(Navarra_con_temp$fecha_defuncion, Navarra_con_temp$T_min, type='l', ylab='')
+plot(Navarra_con_temp$fecha_defuncion, Navarra_con_temp$T_media, type='l', ylab='')
+plot(Navarra_con_temp$fecha_defuncion, Navarra_con_temp$T_max, type='l', ylab='')
+    #Serie temporal de la temperatura media. En invierno baja. En verano sube.
 
-#MODELOS 2:
+#4)
+boxplot(defunciones_observadas~cod_gedad, data=Navarra_con_temp)
+    #Aquí ya se ve que cuanto más edad, más defunciones. Sobretodo a partir de los
+#     75 años.
 
-base2<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=3), arglag=list(fun="ns", df=2))
-modelo2<-glm(Navarra_con_temp$defunciones_observadas ~ base2, family=quasipoisson())
-prediccion2<-crosspred(base2, model=modelo2)
-
-par(mfrow=c(1,2))
-plot(prediccion2, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion2, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado')
-par(mfrow=c(1,1))
-
-
-#------------------------------
-
-#MODELO 3:
-
-base3<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=10), arglag=list(fun="ns", df=10))
-modelo3<-glm(Navarra_con_temp$defunciones_observadas ~ base3, family=quasipoisson())
-prediccion3<-crosspred(base3, model=modelo3)
-
-par(mfrow=c(1,2))
-plot(prediccion3, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion3, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado')
-par(mfrow=c(1,1))
+#5)
+plot(Navarra_con_temp$T_media, Navarra_con_temp$defunciones_observadas)
+plot(Navarra_con_temp$defunciones_observadas, Navarra_con_temp$T_media)
 
 
 #------------------------------
 
-#Hacemos análisis de sensibilidad para estudiar cuántos grados de libertad se han de tener:
+#Una vez se tiene todo explicado, hacemos los primeros modelos.
 
-resultados<-data.frame(df_temp=integer(), df_retardo=integer(), RR_max=numeric())
+Navarra_con_temp$defunciones_obs_redondeadas <- round(Navarra_con_temp$defunciones_observadas)
+    #Hay que redondear porque si no a la hora de calcular la verosimilitud no puede
+    #con números reales. Tienen que ser enteros.
 
-for (df_var in c(3:12)) {
-  for (df_lag in c(3:12)) {
-    base<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=df_var), arglag=list(fun="ns", df=df_lag))
-    modelo<-glm(Navarra_con_temp$defunciones_observadas ~ base, family=quasipoisson())
-    prediccion<-crosspred(base, model=modelo)
+
+#Hacemos el análisis de sensibilidad para elegir el mejor modelo:
+
+  
+#1) 'ns' para ambos:
+  
+resultados_ns<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
+  
+for (df_var in c(3:7)) {
+  for (df_lag in c(3:7)) {
+    base<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="ns", df=df_var), arglag=list(fun="ns", df=df_lag))
+    modelo<-glm(Navarra_con_temp$defunciones_obs_redondeadas ~ base, family=quasipoisson())
+
+    k <- length(coef(modelo))
+    phi <- summary(modelo)$dispersion
+    ll <- logLik(update(modelo, family=poisson))
+    qaic <- -2 * as.numeric(ll) + 2 *phi * k
+      
+    resultados_ns <- rbind(resultados_ns, data.frame(df_temp=df_var, df_retardo=df_lag, QAIC = qaic))
+  }
+}
+  
+print(resultados_ns)
+
+#2) 'bs' para ambos: (ponemos los df a partir de 4 porque salen avisos de que 3 es demasiado pequeño)
+
+resultados_bs<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
+
+for (df_var in c(4:7)) {
+  for (df_lag in c(4:7)) {
+    base<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=df_var), arglag=list(fun="bs", df=df_lag))
+    modelo<-glm(Navarra_con_temp$defunciones_obs_redondeadas ~ base, family=quasipoisson())
     
-    rr_max <- max(prediccion$allRRfit)
-    resultados <- rbind(resultados, data.frame(df_temp=df_var, df_retardo=df_lag, RR_max = rr_max))
+    k <- length(coef(modelo))
+    phi <- summary(modelo)$dispersion
+    ll <- logLik(update(modelo, family=poisson))
+    qaic <- -2 * as.numeric(ll) + 2 *phi * k
+    
+    resultados_bs <- rbind(resultados_bs, data.frame(df_temp=df_var, df_retardo=df_lag, QAIC = qaic))
   }
 }
 
-print(resultados)
+print(resultados_bs)
 
-library(ggplot2)
-help(ggplot)
-ggplot(resultados, aes(x = df_temp, y = df_retardo, fill = RR_max)) +
-  geom_tile(color = "white") +
-  scale_fill_viridis_c(option = "plasma", na.value = "grey80") +
-  labs(
-    title = "Riesgo relativo acumulado máximo según grados de libertad",
-    x = "Grados de libertad (temperatura)",
-    y = "Grados de libertad (retardo)",
-    fill = "RR máximo"
-  ) +
-  theme_minimal()
+#3) 'ns' para temp. y 'bs' para lag:
 
+resultados_ns_bs<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
 
-base_final<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=9), arglag=list(fun="ns", df=8))
-modelo_final<-glm(Navarra_con_temp$defunciones_observadas ~ base_final, family=quasipoisson())
-prediccion_final<-crosspred(base_final, model=modelo_final)
-
-par(mfrow=c(1,2))
-plot(prediccion_final, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_final, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado')
-par(mfrow=c(1,1))
-
-
-#------------------------------
-
-#Veamos qué pasa cuando usamos splines naturales o beta-splines para todo:
-
-#solo beta-splines:
-base_bs<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=9), arglag=list(fun="bs", df=8))
-modelo_bs<-glm(Navarra_con_temp$defunciones_observadas ~ base_bs, family=quasipoisson())
-prediccion_bs<-crosspred(base_bs, model=modelo_bs)
-
-par(mfrow=c(1,2))
-plot(prediccion_bs, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_bs, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado')
-par(mfrow=c(1,1))
-
-
-#solo splines naturales:
-base_ns<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="ns", df=9), arglag=list(fun="ns", df=8))
-modelo_ns<-glm(Navarra_con_temp$defunciones_observadas ~ base_ns, family=quasipoisson())
-prediccion_ns<-crosspred(base_ns, model=modelo_ns)
-
-par(mfrow=c(1,2))
-plot(prediccion_ns, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_ns, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado')
-par(mfrow=c(1,1))
-
-
-#spline natural para temperatura y beta-spline para retardo:
-base_ns_bs<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="ns", df=9), arglag=list(fun="bs", df=8))
-modelo_ns_bs<-glm(Navarra_con_temp$defunciones_observadas ~ base_ns_bs, family=quasipoisson())
-prediccion_ns_bs<-crosspred(base_ns_bs, model=modelo_ns_bs)
-
-par(mfrow=c(1,2))
-plot(prediccion_ns_bs, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_ns_bs, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado')
-par(mfrow=c(1,1))
+for (df_var in c(3:7)) {
+  for (df_lag in c(4:7)) {
+    base<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="ns", df=df_var), arglag=list(fun="bs", df=df_lag))
+    modelo<-glm(Navarra_con_temp$defunciones_obs_redondeadas ~ base, family=quasipoisson())
     
-        #¿Incluir en el trabajo?
+    k <- length(coef(modelo))
+    phi <- summary(modelo)$dispersion
+    ll <- logLik(update(modelo, family=poisson))
+    qaic <- -2 * as.numeric(ll) + 2 *phi * k
+    
+    resultados_ns_bs <- rbind(resultados_ns_bs, data.frame(df_temp=df_var, df_retardo=df_lag, QAIC = qaic))
+  }
+}
+
+print(resultados_ns_bs)
+
+#4) 'bs' para temp. y 'ns' para lag:
+
+resultados_bs_ns<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
+
+for (df_var in c(3:7)) {
+  for (df_lag in c(3:7)) {
+    base<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=df_var), arglag=list(fun="ns", df=df_lag))
+    modelo<-glm(Navarra_con_temp$defunciones_obs_redondeadas ~ base, family=quasipoisson())
+    
+    k <- length(coef(modelo))
+    phi <- summary(modelo)$dispersion
+    ll <- logLik(update(modelo, family=poisson))
+    qaic <- -2 * as.numeric(ll) + 2 *phi * k
+    
+    resultados_bs_ns <- rbind(resultados_bs_ns, data.frame(df_temp=df_var, df_retardo=df_lag, QAIC = qaic))
+  }
+}
+
+print(resultados_bs_ns)
+
+#Seleccionamos el mejor de todos:
+resultados_ns[which(resultados_ns$QAIC==min(resultados_ns$QAIC)),]
+resultados_bs[which(resultados_bs$QAIC==min(resultados_bs$QAIC)),]
+resultados_ns_bs[which(resultados_ns_bs$QAIC==min(resultados_ns_bs$QAIC)),]
+resultados_bs_ns[which(resultados_bs_ns$QAIC==min(resultados_bs_ns$QAIC)),]
+
+  #El mejor es el QAIC donde se usa un 'bs' para la temperatura y 'ns' para retardo.
+  #Toma un valor de 690782.2, y df_temp=df_lag=3
+
+
+base_mejor<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=3), arglag=list(fun="ns", df=3))
+modelo_mejor<-glm(Navarra_con_temp$defunciones_obs_redondeadas ~ base_mejor, family=quasipoisson())
+prediccion_mejor<-crosspred(base_mejor, model=modelo_mejor)
+
+par(mfrow=c(1,2))
+plot(prediccion_mejor, xlab='Temperatura', ylab='Retardo', zlab='RR')
+plot(prediccion_mejor, 'overall', xlab='Temperatura', ylab='RR')
+par(mfrow=c(1,1))
+
+
+#-------------
+
+#A continuación estudiamos el modelo con alguna variable más:
+
+resultados_ns.1<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
+for (df_var in c(3:5)) {
+  for (df_lag in c(3:5)) {
+    base<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="ns", df=df_var), arglag=list(fun="ns", df=df_lag))
+    modelo<-glm(Navarra_con_temp$defunciones_obs_redondeadas ~ base+ns(Navarra_con_temp$fecha_defuncion, df=10*7), family=quasipoisson())
+    
+    k <- length(coef(modelo))
+    phi <- summary(modelo)$dispersion
+    ll <- logLik(update(modelo, family=poisson))
+    qaic <- -2 * as.numeric(ll) + 2 *phi * k
+    
+    resultados_ns.1 <- rbind(resultados_ns.1, data.frame(df_temp=df_var, df_retardo=df_lag, QAIC = qaic))
+  }
+}
+print(resultados_ns.1)
+
+
+resultados_bs.1<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
+for (df_var in c(3:5)) {
+  for (df_lag in c(3:5)) {
+    base<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=df_var), arglag=list(fun="bs", df=df_lag))
+    modelo<-glm(Navarra_con_temp$defunciones_obs_redondeadas ~ base+ns(Navarra_con_temp$fecha_defuncion, df=10*7), family=quasipoisson())
+    
+    k <- length(coef(modelo))
+    phi <- summary(modelo)$dispersion
+    ll <- logLik(update(modelo, family=poisson))
+    qaic <- -2 * as.numeric(ll) + 2 *phi * k
+    
+    resultados_bs.1 <- rbind(resultados_bs.1, data.frame(df_temp=df_var, df_retardo=df_lag, QAIC = qaic))
+  }
+}
+print(resultados_bs.1)
+
+
+resultados_ns_bs.1<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
+for (df_var in c(3:5)) {
+  for (df_lag in c(3:5)) {
+    base<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="ns", df=df_var), arglag=list(fun="bs", df=df_lag))
+    modelo<-glm(Navarra_con_temp$defunciones_obs_redondeadas ~ base+ns(Navarra_con_temp$fecha_defuncion, df=10*7), family=quasipoisson())
+    
+    k <- length(coef(modelo))
+    phi <- summary(modelo)$dispersion
+    ll <- logLik(update(modelo, family=poisson))
+    qaic <- -2 * as.numeric(ll) + 2 *phi * k
+    
+    resultados_ns_bs.1 <- rbind(resultados_ns_bs.1, data.frame(df_temp=df_var, df_retardo=df_lag, QAIC = qaic))
+  }
+}
+print(resultados_ns_bs.1)
+
+
+resultados_bs_ns.1<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
+for (df_var in c(3:5)) {
+  for (df_lag in c(3:5)) {
+    base<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=df_var), arglag=list(fun="ns", df=df_lag))
+    modelo<-glm(Navarra_con_temp$defunciones_obs_redondeadas ~ base+ns(Navarra_con_temp$fecha_defuncion, df=10*7), family=quasipoisson())
+    
+    k <- length(coef(modelo))
+    phi <- summary(modelo)$dispersion
+    ll <- logLik(update(modelo, family=poisson))
+    qaic <- -2 * as.numeric(ll) + 2 *phi * k
+    
+    resultados_bs_ns.1 <- rbind(resultados_bs_ns.1, data.frame(df_temp=df_var, df_retardo=df_lag, QAIC = qaic))
+  }
+}
+print(resultados_bs_ns.1)
+
+
+#Seleccionamos el mejor de todos:
+resultados_ns.1[which(resultados_ns.1$QAIC==min(resultados_ns.1$QAIC)),]
+resultados_bs.1[which(resultados_bs.1$QAIC==min(resultados_bs.1$QAIC)),]
+resultados_ns_bs.1[which(resultados_ns_bs.1$QAIC==min(resultados_ns_bs.1$QAIC)),]
+resultados_bs_ns.1[which(resultados_bs_ns.1$QAIC==min(resultados_bs_ns.1$QAIC)),]
+  #La opcion para el menor QAIC sigue siendo 'bs' para la temp. y 'ns' para
+  #el retardo, con 3 df para cada uno. QAIC=686365.2. Estos modelos son mejores
+  #que los anteriores.
+
+base_mejor.1<-crossbasis((Navarra_con_temp$T_media), lag=30, argvar=list(fun="bs", df=3), arglag=list(fun="ns", df=3))
+modelo_mejor.1<-glm(Navarra_con_temp$defunciones_obs_redondeadas ~ base_mejor.1+ns(Navarra_con_temp$fecha_defuncion, df=10*7), family=quasipoisson())
+prediccion_mejor.1<-crosspred(base_mejor.1, model=modelo_mejor.1)
+
+par(mfrow=c(1,2))
+plot(prediccion_mejor.1, xlab='Temperatura', ylab='Retardo', zlab='RR')
+plot(prediccion_mejor.1, 'overall', xlab='Temperatura', ylab='RR')
+par(mfrow=c(1,1))
+
+#---
+
+#Podemos hacer 'slices' para ver lo que ocurre en algún valor concreto:
+plot(prediccion_mejor, 'slices', var=c(0,25,30))
+plot(prediccion_mejor, 'slices', lag=c(0,3,5))
+
+
 
 #------------------------------
 
-#Hacer el análisis por grupos de edad o de población:
+#Hacemos el análisis por subgrupos de edad:
 
 names(Navarra_con_temp)
 Navarra_con_temp$cod_gedad<-as.factor(Navarra_con_temp$cod_gedad)
@@ -265,12 +349,10 @@ levels(Navarra_con_temp$cod_gedad)
     #la población se divide en grupos: 0-14, 15-44, 45-64, 65-74, 75-84, +85
     #Después, tambien tenemos el grupo all y el +65. Nos fijamos en los de arriba
 
-#Hay que poner a los de +65 en el grupo de 65-74:
+#Ponemos a los de +65 en el grupo de 65-74:
 
 Navarra_con_temp$cod_gedad[Navarra_con_temp$cod_gedad == '+65'] <- '65-74'
 
-
-    #Omitimos los datos que pone 'all'
 
 #Hacemos el análisis:
 grupo_niños<-subset(Navarra_con_temp, cod_gedad=='0-14')
@@ -281,89 +363,5 @@ grupo_mas_mayores<-subset(Navarra_con_temp, cod_gedad=='75-84')
 grupo_abuelos<-subset(Navarra_con_temp, cod_gedad=='+85')
 
 
-#Grupo 0-14:
-base_niños<-crossbasis((grupo_niños$T_media), lag=30, argvar=list(fun="bs", df=9), arglag=list(fun="ns", df=8))
-modelo_niños<-glm(grupo_niños$defunciones_observadas ~ base_niños, family=quasipoisson())
-prediccion_niños<-crosspred(base_niños, model=modelo_niños)
-
-par(mfrow=c(1,2))
-plot(prediccion_niños, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Grupo 0-14 años')
-plot(prediccion_niños, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado (0-14 años)')
-par(mfrow=c(1,1))
-  #el grafico de efecto acumulado no tiene sentido. Sube y baja
-  #constantemente. Puede ser por falta de datos.
-
-tapply(Navarra_con_temp$defunciones_observadas,
-       Navarra_con_temp$cod_gedad,
-       sum, na.rm = FALSE)
-  #contamos cuántas defunciones se han observado para cada grupo de edad, 
-  # y solo hay casi 404 para 0-14 años. No son suficientes
-
-#---
-      
-#Grupo 15-44:
-base_jovenes<-crossbasis((grupo_jovenes$T_media), lag=30, argvar=list(fun="bs", df=9), arglag=list(fun="ns", df=8))
-modelo_jovenes<-glm(grupo_jovenes$defunciones_observadas ~ base_jovenes, family=quasipoisson())
-prediccion_jovenes<-crosspred(base_jovenes, model=modelo_jovenes)
-
-par(mfrow=c(1,2))
-plot(prediccion_jovenes, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Grupo 15-44 años')
-plot(prediccion_jovenes, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado (15-44 años)')
-par(mfrow=c(1,1))
-      #parece que hay algo raro. el RR es muy grande, muchos altibajos.
-      #hacemos zoom a la curva
-plot(prediccion_jovenes, 'overall', ylim=c(-0.1,3), xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado (15-44 años)')
-
-#---
-
-#Grupo 45-64:
-base_adultos<-crossbasis((grupo_adultos$T_media), lag=30, argvar=list(fun="bs", df=9), arglag=list(fun="ns", df=8))
-modelo_adultos<-glm(grupo_adultos$defunciones_observadas ~ base_adultos, family=quasipoisson())
-prediccion_adultos<-crosspred(base_adultos, model=modelo_adultos)
-
-par(mfrow=c(1,2))
-plot(prediccion_adultos, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Grupo 45-64 años')
-plot(prediccion_adultos, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado (45-64 años)')
-par(mfrow=c(1,1))
-      #esto no quiere decir que haya algo mal. No hay suficientes
-      #muertes atribuibles al exceso de calor para este grupo.
-
-#---
-
-#Grupo 65-74:
-base_mayores<-crossbasis((grupo_mayores$T_media), lag=30, argvar=list(fun="bs", df=9), arglag=list(fun="ns", df=8))
-modelo_mayores<-glm(grupo_mayores$defunciones_observadas ~ base_mayores, family=quasipoisson())
-prediccion_mayores<-crosspred(base_mayores, model=modelo_mayores)
-
-par(mfrow=c(1,2))
-plot(prediccion_mayores, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Grupo 65-74 años')
-plot(prediccion_mayores, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado (65-74 años)')
-par(mfrow=c(1,1))
-
-#---
-
-#Grupo 75-84:
-base_mas_mayores<-crossbasis((grupo_mas_mayores$T_media), lag=30, argvar=list(fun="bs", df=9), arglag=list(fun="ns", df=8))
-modelo_mas_mayores<-glm(grupo_mas_mayores$defunciones_observadas ~ base_mas_mayores, family=quasipoisson())
-prediccion_mas_mayores<-crosspred(base_mas_mayores, model=modelo_mas_mayores)
-
-par(mfrow=c(1,2))
-plot(prediccion_mas_mayores, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Grupo 75-84 años')
-plot(prediccion_mas_mayores, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado (75-84 años)')
-par(mfrow=c(1,1))
-
-#---
-
-#Grupo +85:
-base_abuelos<-crossbasis((grupo_abuelos$T_media), lag=30, argvar=list(fun="bs", df=9), arglag=list(fun="ns", df=8))
-modelo_abuelos<-glm(grupo_abuelos$defunciones_observadas ~ base_abuelos, family=quasipoisson())
-prediccion_abuelos<-crosspred(base_abuelos, model=modelo_abuelos)
-
-par(mfrow=c(1,2))
-plot(prediccion_abuelos, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Grupo +85 años')
-plot(prediccion_abuelos, 'overall', xlab='Temperatura', ylab='RR', main='Gráfico de efecto acumulado (+85 años)')
-par(mfrow=c(1,1))
-
-#---
 
 
