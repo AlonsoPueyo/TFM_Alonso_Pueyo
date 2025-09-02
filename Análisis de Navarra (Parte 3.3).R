@@ -269,7 +269,6 @@ plot(prediccion_niños_Navarra, xlab='Temperatura', ylab='Retardo', zlab='RR')
 plot(prediccion_niños_Navarra, 'overall', xlab='Temperatura', ylab='RR', ylim=c(0,1.5))
 par(mfrow=c(1,1))     
           #Estos gráficos no dicen nada. Hay pocos datos y mala aproximación.
-          #Poner igualmente para comparar...
 
 
 #2) Jovenes: (15-44)

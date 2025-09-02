@@ -113,6 +113,6 @@ par(mfrow=c(1,1))
 
 plot(prediccion_Lugo, 'slices', var=c(4,26), ylab='RR')
 plot(prediccion_Huelva, 'slices', lag=c(0,5,10,15), var=c(6,10,28,35), ylab='RR')
-    #se pueden poner estos graficos pero no me convencen. No me dicen nada...
+    #Estos gráficos no dicen nada.
 
 
