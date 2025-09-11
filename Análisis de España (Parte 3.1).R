@@ -75,6 +75,8 @@ momo_provincial_temp$dow <- factor(weekdays(momo_provincial_temp$fecha_defuncion
 
 
   #Cogemos una submuestra aleatoria estratificada:
+momo_provincial_temp <- momo_provincial_temp[!is.na(momo_provincial_temp$tmed), ]
+
 set.seed(1234)
 momo_provincial_temp$mes<-format(momo_provincial_temp$fecha_defuncion, "%m")
 submuestra<-ungroup(sample_frac(group_by(momo_provincial_temp, mes),0.033))
@@ -109,11 +111,12 @@ sum(submuestra$tmax>35, na.rm=TRUE)
 #---
 #---
 
-#Hacemos el análisis de sensibilidad para elegir el mejor modelo
+#Hacemos el análisis de sensibilidad para elegir el mejor modelo (hay que quitar
+#   los NA de tmed antes de tomar la submuestra para que no dé error)
 
 #1) 'ns' para ambos:
 
-resultados_ns<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
+resultados_ns<-data.frame(df_var=integer(), df_lag=integer(), QAIC=numeric())
 
 for (df_var in c(3:7)) {
   for (df_lag in c(3:7)) {
@@ -125,7 +128,7 @@ for (df_var in c(3:7)) {
     ll <- logLik(update(modelo, family=poisson))
     qaic <- -2 * as.numeric(ll) + 2 *phi * k
     
-    resultados_ns <- rbind(resultados_ns, data.frame(df_temp=df_var, df_retardo=df_lag, QAIC = qaic))
+    resultados_ns <- rbind(resultados_ns, data.frame(df_var=df_var, df_lag=df_lag, QAIC = qaic))
   }
 }
 
@@ -138,7 +141,7 @@ resultados_ns <- readRDS("resultados_ns.rds")
 resultados_bs<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
 
 for (df_var in c(3:7)) {
-  for (df_lag in c(3:7)) {
+  for (df_lag in c(4:7)) {
     base<-crossbasis((submuestra$tmed), lag=30, argvar=list(fun="bs", df=df_var), arglag=list(fun="bs", df=df_lag))
     modelo<-glm(submuestra$defunciones_obs_redondeadas ~ base+submuestra$dow+ns(submuestra$fecha_defuncion, df=10*7), family=quasipoisson())
     
@@ -161,7 +164,7 @@ resultados_bs <- readRDS("resultados_bs.rds")
 resultados_ns_bs<-data.frame(df_temp=integer(), df_retardo=integer(), QAIC=numeric())
 
 for (df_var in c(3:7)) {
-  for (df_lag in c(3:7)) {
+  for (df_lag in c(4:7)) {
     base<-crossbasis((submuestra$tmed), lag=30, argvar=list(fun="ns", df=df_var), arglag=list(fun="bs", df=df_lag))
     modelo<-glm(submuestra$defunciones_obs_redondeadas ~ base+submuestra$dow+ns(submuestra$fecha_defuncion, df=10*7), family=quasipoisson())
     
@@ -306,6 +309,9 @@ plot(prediccionFinal, 'slices', lag=c(0,3,5,11), var=c(0,5,30,35), ylab='RR')
 levels(momo_provincial_temp$cod_gedad)
     #la población se divide en los grupos: 0-14, 15-44, 45-64, 65-74, 75-84, +85 (y +65)
     #No tendremos en cuenta el grupo 'all'
+tapply(momo_provincial_temp$defunciones_observadas,
+       momo_provincial_temp$cod_gedad,
+       sum, na.rm = TRUE)
 
 grupo_niños<-subset(momo_provincial_temp, cod_gedad=='0-14')
 grupo_jovenes<-subset(momo_provincial_temp, cod_gedad=='15-44')
