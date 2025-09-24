@@ -52,14 +52,23 @@ summary(momo_provincial_temp)
 
   #Se hacen gráficos que lo ilustren:
 #1)
-par(mfrow=c(1,3))
 hist(momo_provincial_temp$tmin, xlab='Temperatura mínima', ylab='Frecuencia', main='')
+abline(v=mean(momo_provincial_temp$tmin), col='red')
+abline(v=median(momo_provincial_temp$tmin), col='blue')
+
 hist(momo_provincial_temp$tmed, xlab='Temperatura media', ylab='Frecuencia', main='')
+abline(v=mean(momo_provincial_temp$tmed), col='red')
+abline(v=median(momo_provincial_temp$tmed), col='blue')
+
 hist(momo_provincial_temp$tmax, xlab='Temperatura máxima', ylab='Frecuencia', main='')
-par(mfrow=c(1,1))
+abline(v=mean(momo_provincial_temp$tmax), col='red')
+abline(v=median(momo_provincial_temp$tmax), col='blue')
+
 
 #2)
 hist(momo_provincial_temp$defunciones_observadas, xlab='Defunciones observadas', ylab='Frecuencia', main='')
+abline(v=mean(momo_provincial_temp$defunciones_observadas, na.rm=TRUE), col='red')
+abline(v=median(momo_provincial_temp$defunciones_observadas, na.rm=TRUE), col='blue')
     #Solo se ve la primera barra debido a la cantidad de datos que hay, pero
   #   muestra la idea.
 
