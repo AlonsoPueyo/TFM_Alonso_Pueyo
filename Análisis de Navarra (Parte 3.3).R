@@ -3,10 +3,10 @@ library(dplyr)
 
 momo_provincial_temp <- readRDS("momo_provincial_temp.rds")
 Navarra<-filter(momo_provincial_temp, nombre_ambito=='NAVARRA')
-  #Ahora mismo solo tenemos datos del aeropuerto de Pamplona. Podríamos conseguir 
+  #Tenemos datos del aeropuerto de Pamplona. Podríamos conseguir 
   # los de temperaturas de otras estaciones meteorológicas, pero las defunciones
-  # observadas no cambiarían. No podremos hacer el mapa de colores, pero sí el 
-  # análisis por grupos...
+  # observadas no cambiarían. No podeemos hacer el mapa de colores, pero sí el 
+  # análisis por grupos.
 
 which(is.na(Navarra$tmed)) #Algunos días sueltos no tiene info de la temperatura, 
                             # como el 26 de marzo del 2015
@@ -42,9 +42,16 @@ tapply(Navarra$defunciones_observadas,
 
 #---
 
-
   #Se pueden incluir gráficos:
 
+hist(Navarra$tmed, xlab='Temperatura media', ylab='Frecuencia', main='')
+abline(v=mean(Navarra$tmed), col='red')
+abline(v=median(Navarra$tmed), col='blue')
+
+
+hist(Navarra$defunciones_observadas, xlab='Defunciones observadas', ylab='Frecuencia', main='')
+abline(v=mean(Navarra$defunciones_observadas, na.rm=TRUE), col='red')
+abline(v=median(Navarra$defunciones_observadas, na.rm=TRUE), col='blue')
 
 #-----
 
@@ -68,7 +75,7 @@ par(mfrow=c(1,2))
 plot(prediccion, xlab='Temperatura', ylab='Retardo', zlab='RR')
 plot(prediccion, 'overall', xlab='Temperatura', ylab='RR')
 par(mfrow=c(1,1))
-  #este primer modelo ha sido hecho según lo obtenido en la parte 3.1. Como ahora
+  #Este primer modelo ha sido hecho según lo obtenido en la parte 3.1. Como ahora
   #no son datos de tantos sitios diferentes,  sino que de uno solo, se observan cosas
   #un poco raras. Por ello parece que tendremos que elegir otro modelo. Probaremos
   #a hacer otro análisis de sensibilidad.
@@ -179,7 +186,7 @@ resultados_bs_ns[which(resultados_bs_ns$QAIC==min(resultados_bs_ns$QAIC)),]
 
   #El mejor modelo es 'bs' para ambas dimensiones, con 4 df para temp y 4 df
   # para el retardo. También es buen modelo el de 'bs' para la temp y 'ns' para
-  # el retardo, ambos con 4 df. (En otras ejecuciones son 3/4 grados de libertad...)
+  # el retardo, ambos con 4 df.
 
   #NOTA: Ocurre al contrario que con todos los datos de España. Ahora tienen un
   # menor QAIC aquellos modelos más sencillos, con menos df. Cuando teníamos todos
