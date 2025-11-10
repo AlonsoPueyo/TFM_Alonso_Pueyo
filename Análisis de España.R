@@ -104,21 +104,86 @@ defunciones_por_mes<-cbind(defunciones_por_mes23, defunciones_por_mes24)
 defunciones_por_mes  #Esto indica la suma del número de defunciones diarias observadas en
                     # toda España cada mes
 
+  #Nota: Las tablas anteriores no se incluyen en el documento. Se pone todo en los
+  # gráficos siguientes. Además, no ponemos las defunciones absolutas por mes, sino que
+  # nos decantamos por las tasas por 100.000 habitantes.
 
-    #Ponemos estos datos en un gráfico:
+#Trimestre 1 del 2023: (48.085.361)
+(defunciones_por_mes23[1,2]/48085361)*100000
+(defunciones_por_mes23[2,2]/48085361)*100000
+(defunciones_por_mes23[3,2]/48085361)*100000
+
+#Trimestre 2 del 2023: (48.205.962)
+(defunciones_por_mes23[4,2]/48205962)*100000
+(defunciones_por_mes23[5,2]/48205962)*100000
+(defunciones_por_mes23[6,2]/48205962)*100000
+
+#Trimestre 3 del 2023: (48.320.520)
+(defunciones_por_mes23[7,2]/48320520)*100000
+(defunciones_por_mes23[8,2]/48320520)*100000
+(defunciones_por_mes23[9,2]/48320520)*100000
+
+#Trimestre 4 del 2023: (48.486.865)
+(defunciones_por_mes23[10,2]/48486865)*100000
+(defunciones_por_mes23[11,2]/48486865)*100000
+(defunciones_por_mes23[12,2]/48486865)*100000
+
+####
+
+#Trimestre 1 del 2024: (48.619.695)
+(defunciones_por_mes24[1,2]/48619695)*100000
+(defunciones_por_mes24[2,2]/48619695)*100000
+(defunciones_por_mes24[3,2]/48619695)*100000
+
+#Trimestre 2 del 2024: (48.723.394)
+(defunciones_por_mes24[4,2]/48723394)*100000
+(defunciones_por_mes24[5,2]/48723394)*100000
+(defunciones_por_mes24[6,2]/48723394)*100000
+
+#Trimestre 3 del 2024: (48.807.474)
+(defunciones_por_mes24[7,2]/48807474)*100000
+(defunciones_por_mes24[8,2]/48807474)*100000
+(defunciones_por_mes24[9,2]/48807474)*100000
+
+#Trimestre 4 del 2024: (48.966.300)
+(defunciones_por_mes24[10,2]/48966300)*100000
+(defunciones_por_mes24[11,2]/48966300)*100000
+(defunciones_por_mes24[12,2]/48966300)*100000
+
+tasas23<-c((defunciones_por_mes23[1,2]/48085361)*100000, (defunciones_por_mes23[2,2]/48085361)*100000, (defunciones_por_mes23[3,2]/48085361)*100000,
+         (defunciones_por_mes23[4,2]/48205962)*100000, (defunciones_por_mes23[5,2]/48205962)*100000, (defunciones_por_mes23[6,2]/48205962)*100000,
+         (defunciones_por_mes23[7,2]/48320520)*100000, (defunciones_por_mes23[8,2]/48320520)*100000, (defunciones_por_mes23[9,2]/48320520)*100000,
+         (defunciones_por_mes23[10,2]/48486865)*100000, (defunciones_por_mes23[11,2]/48486865)*100000, (defunciones_por_mes23[12,2]/48486865)*100000)
+
+tasas24<-c((defunciones_por_mes24[1,2]/48619695)*100000, (defunciones_por_mes24[2,2]/48619695)*100000, (defunciones_por_mes24[3,2]/48619695)*100000,
+           (defunciones_por_mes24[4,2]/48723394)*100000, (defunciones_por_mes24[5,2]/48723394)*100000, (defunciones_por_mes24[6,2]/48723394)*100000,
+           (defunciones_por_mes24[7,2]/48807474)*100000, (defunciones_por_mes24[8,2]/48807474)*100000, (defunciones_por_mes24[9,2]/48807474)*100000,
+           (defunciones_por_mes24[10,2]/48966300)*100000, (defunciones_por_mes24[11,2]/48966300)*100000, (defunciones_por_mes24[12,2]/48966300)*100000)
+
+tasas<-cbind(tasas23, tasas24)
+tasas
+
+
+
+    #Realizamos los gráficos:
+meses=c('Enero', 'Feb.', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Sept.', 'Octubre', 'Noviembre', 'Diciembre')
+
 par(mfrow=c(2,2))
-plot(tmed_por_mes23$mes, tmed_por_mes23$tmed, xlab='Mes (2023)', ylab='Temperatura media', pch=16)
-plot(defunciones_por_mes23$mes, defunciones_por_mes23$defunciones_observadas, xlab='Mes (2023)', ylab='Defunciones observadas', pch=16)
+plot(tmed_por_mes23$mes, tmed_por_mes23$tmed, type='b', xaxt='n', xlab='Mes (2023)', ylab='Temperatura media', pch=16)
+  axis(1, at=1:12, labels=meses)
+plot(defunciones_por_mes23$mes, tasas23, type='b', xaxt='n', xlab='Mes(2023)', ylab='Tasa de mortalidad por 100000 habitantes', pch=16)  
+  axis(1, at=1:12, labels=meses)
 
-plot(tmed_por_mes24$mes, tmed_por_mes24$tmed, xlab='Mes (2024)', ylab='Temperatura media', pch=16)
-plot(defunciones_por_mes24$mes, defunciones_por_mes24$defunciones_observadas, xlab='Mes (2024)', ylab='Defunciones observadas', pch=16)
+plot(tmed_por_mes24$mes, tmed_por_mes24$tmed, type='b', xaxt='n', xlab='Mes (2024)', ylab='Temperatura media', pch=16)
+  axis(1, at=1:12, labels=meses)
+plot(defunciones_por_mes24$mes, tasas24, type='b', xaxt='n', xlab='Mes(2024)', ylab='Tasa de mortalidad por 100000 habitantes', pch=16)  
+  axis(1, at=1:12, labels=meses)
 par(mfrow=c(1,1))
       #El hecho de que haya más defunciones en los meses 
       # de invierno es debido a que la gente muere por enfermedades relativas
       # al frío, como la gripe.
 
-  #NOTA: PARA EL ANÁLISIS PROVINCIAL DE NAVARRA (O EL QUE SEA) HACER ESTOS MISMOS
-  # GRÁFICOS. YA NO TENDREMOS DATOS DE TANTOS SITIOS, SOLO DE UNA PROVINCIA EN PARTICULAR...
+  #NOTA: Hacer estos mismos gráficos para el análisis de Navarra.
 
 
 #---
@@ -126,24 +191,24 @@ par(mfrow=c(1,1))
 #2) Suma de defunciones por rangos de temperatura
 
 temp_menor10_23<-filter(defunciones_diarias23, tmed<10)
-sum(temp_menor10_23$defunciones_observadas, na.rm=TRUE)
+(sum(temp_menor10_23$defunciones_observadas, na.rm=TRUE)/48486865)*100000
 temp_menor10_24<-filter(defunciones_diarias24, tmed<10)
-sum(temp_menor10_24$defunciones_observadas, na.rm=TRUE)
+(sum(temp_menor10_24$defunciones_observadas, na.rm=TRUE)/48966300)*100000
 
 temp_entre_10_20_23<-filter(defunciones_diarias23, tmed>=10 & tmed<20)
-sum(temp_entre_10_20_23$defunciones_observadas, na.rm=TRUE)
+(sum(temp_entre_10_20_23$defunciones_observadas, na.rm=TRUE)/48486865)*100000
 temp_entre_10_20_24<-filter(defunciones_diarias24, tmed>=10 & tmed<20)
-sum(temp_entre_10_20_24$defunciones_observadas, na.rm=TRUE)
+(sum(temp_entre_10_20_24$defunciones_observadas, na.rm=TRUE)/48966300)*100000
 
 temp_entre_20_30_23<-filter(defunciones_diarias23, tmed>=20 & tmed<30)
-sum(temp_entre_20_30_23$defunciones_observadas, na.rm=TRUE)
+(sum(temp_entre_20_30_23$defunciones_observadas, na.rm=TRUE)/48486865)*100000
 temp_entre_20_30_24<-filter(defunciones_diarias24, tmed>=20 & tmed<30)
-sum(temp_entre_20_30_24$defunciones_observadas, na.rm=TRUE)
+(sum(temp_entre_20_30_24$defunciones_observadas, na.rm=TRUE)/48966300)*100000
 
 temp_mas30_23<-filter(defunciones_diarias23, tmed>=30)
-sum(temp_mas30_23$defunciones_observadas, na.rm=TRUE)
+(sum(temp_mas30_23$defunciones_observadas, na.rm=TRUE)/48486865)*100000
 temp_mas30_24<-filter(defunciones_diarias24, tmed>=30)
-sum(temp_mas30_24$defunciones_observadas, na.rm=TRUE)
+(sum(temp_mas30_24$defunciones_observadas, na.rm=TRUE)/48966300)*100000
   #En documento decir también el número de observaciones que tiene cada rango
   # de temperatura y que eso influye en que apenas haya muertes los días de más
   # de 30 grados y que haya muchas entre los 10 y los 30...
@@ -503,6 +568,114 @@ plot(prediccion24, 'overall', xlab='Temperatura', ylab='RR')
 par(mfrow=c(1,1))
 
 
+#------------------------------------------------------------------
+
+#Análisis por subgrupos de edad:
+
+momo_23$dow <- factor(weekdays(momo_23$fecha_defuncion))
+momo_24$dow <- factor(weekdays(momo_24$fecha_defuncion))
+momo_23_24$dow <- factor(weekdays(momo_23_24$fecha_defuncion))
+
+
+levels(momo_23_24$cod_gedad)
+tapply(momo_23_24$defunciones_observadas,
+       momo_23_24$cod_gedad,
+       sum, na.rm = TRUE)
+
+grupo_niños<-subset(momo_23_24, cod_gedad=='0-14')
+grupo_jovenes<-subset(momo_23_24, cod_gedad=='15-44')
+grupo_adultos<-subset(momo_23_24, cod_gedad=='45-64')
+grupo_mayores<-subset(momo_23_24, cod_gedad=='65-74')
+grupo_mas_mayores<-subset(momo_23_24, cod_gedad=='75-84')
+grupo_abuelos<-subset(momo_23_24, cod_gedad=='+85')
+
+
+#1) Niños: (0-14)
+base_niños<-crossbasis((grupo_niños$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
+modelo_niños<-glm(grupo_niños$defunciones_observadas ~ base_niños+grupo_niños$dow+ns(grupo_niños$fecha_defuncion, df=7), family=quasipoisson())
+prediccion_niños<-crosspred(base_niños, model=modelo_niños, cen=20)
+
+par(mfrow=c(1,2))
+plot(prediccion_niños, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Niños (0-14 años)')
+plot(prediccion_niños, 'overall', xlab='Temperatura', ylab='RR')
+par(mfrow=c(1,1))
+
+
+
+#2) Jóvenes: (15-44)
+base_jovenes<-crossbasis((grupo_jovenes$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
+modelo_jovenes<-glm(grupo_jovenes$defunciones_observadas ~ base_jovenes+grupo_jovenes$dow+ns(grupo_jovenes$fecha_defuncion, df=7), family=quasipoisson())
+prediccion_jovenes<-crosspred(base_jovenes, model=modelo_jovenes, cen=20)
+
+par(mfrow=c(1,2))
+plot(prediccion_jovenes, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Jóvenes (15-44 años)')
+plot(prediccion_jovenes, 'overall', xlab='Temperatura', ylab='RR')
+par(mfrow=c(1,1))
+
+
+
+#3) Adultos: (45-64)
+base_adultos<-crossbasis((grupo_adultos$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
+modelo_adultos<-glm(grupo_adultos$defunciones_observadas ~ base_adultos+grupo_adultos$dow+ns(grupo_adultos$fecha_defuncion, df=7), family=quasipoisson())
+prediccion_adultos<-crosspred(base_adultos, model=modelo_adultos, cen=20)
+
+par(mfrow=c(1,2))
+plot(prediccion_adultos, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Adultos (45-64 años)')
+plot(prediccion_adultos, 'overall', xlab='Temperatura', ylab='RR')
+par(mfrow=c(1,1))
+
+
+
+#4) Mayores: (65-74)
+base_mayores<-crossbasis((grupo_mayores$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
+modelo_mayores<-glm(grupo_mayores$defunciones_observadas ~ base_mayores+grupo_mayores$dow+ns(grupo_mayores$fecha_defuncion, df=7), family=quasipoisson())
+prediccion_mayores<-crosspred(base_mayores, model=modelo_mayores, cen=20)
+
+par(mfrow=c(1,2))
+plot(prediccion_mayores, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Mayores (65-74 años)')
+plot(prediccion_mayores, 'overall', xlab='Temperatura', ylab='RR')
+par(mfrow=c(1,1))
+
+
+
+#5) Más mayores: (75-84)
+base_mas_mayores<-crossbasis((grupo_mas_mayores$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
+modelo_mas_mayores<-glm(grupo_mas_mayores$defunciones_observadas ~ base_mas_mayores+grupo_mas_mayores$dow+ns(grupo_mas_mayores$fecha_defuncion, df=7), family=quasipoisson())
+prediccion_mas_mayores<-crosspred(base_mas_mayores, model=modelo_mas_mayores, cen=20)
+
+par(mfrow=c(1,2))
+plot(prediccion_mas_mayores, xlab='Temperatura', ylab='Retardo', zlab='RR', main='Más mayores (75-84 años)')
+plot(prediccion_mas_mayores, 'overall', xlab='Temperatura', ylab='RR')
+par(mfrow=c(1,1))
+
+
+
+#6) Abuelos: (+85)
+base_abuelos<-crossbasis((grupo_abuelos$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
+modelo_abuelos<-glm(grupo_abuelos$defunciones_observadas ~ base_abuelos+grupo_abuelos$dow+ns(grupo_abuelos$fecha_defuncion, df=7), family=quasipoisson())
+prediccion_abuelos<-crosspred(base_abuelos, model=modelo_abuelos, cen=20)
+
+par(mfrow=c(1,2))
+plot(prediccion_abuelos, xlab='Temperatura', ylab='Retardo', zlab='RR')
+plot(prediccion_abuelos, 'overall', xlab='Temperatura', ylab='RR')
+par(mfrow=c(1,1))
+
+
+
+
+#No se observan grandes diferencias entre los grupos. En los grupos más jóvenes
+# se nota que el número de fallecimientos es muy bajo. Para los grupos de edad
+# más mayores, ya se ven gráficos mucho más parecidos.
+
+#Se observa lo de siempre. Con temperaturas bajas, el pico del RR se alcanza
+# tras los primeros días de retardo. Para temperaturas altas, el RR más alto
+# se alcanza al principio.
+
+
+
+
+
+
 ############################################################################
 ############################################################################
 ############################################################################
@@ -516,116 +689,4 @@ plot(prediccion23, 'slices', lag=c(0,3,5,11), var=c(0, 10, 30, 35), ylab='RR')
 plot(prediccion24, 'slices', lag=c(0,3,5,11), var=c(0, 10, 30, 35), ylab='RR')
     
     #Lo anterior no está incluido en el documento.
-
-#Análisis por subgrupos de población: (también se puede hacer con lo del 2023 
-# pero no creo que lo incluya en el documento ya que no me dice nada. Sería
-#   rellenar por rellenar y ya no tengo ese problema)...
-
-levels(momo_24$cod_gedad)
-tapply(momo_24$defunciones_observadas,
-       momo_24$cod_gedad,
-       sum, na.rm = TRUE)
-
-grupo_niños<-subset(momo_24, cod_gedad=='0-14')
-grupo_jovenes<-subset(momo_24, cod_gedad=='15-44')
-grupo_adultos<-subset(momo_24, cod_gedad=='45-64')
-grupo_mayores<-subset(momo_24, cod_gedad=='65-74')
-grupo_mas_mayores<-subset(momo_24, cod_gedad=='75-84')
-grupo_abuelos<-subset(momo_24, cod_gedad=='+85')
-grupo_mas65<-subset(momo_24, cod_gedad=='+65')
-
-
-###############################
-
-#1) Niños: (0-14)
-base_niños<-crossbasis((grupo_niños$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
-modelo_niños<-glm(grupo_niños$defunciones_obs_redondeadas ~ base_niños+grupo_niños$dow+ns(grupo_niños$fecha_defuncion, df=7), family=quasipoisson())
-prediccion_niños<-crosspred(base_niños, model=modelo_niños, cen=20)
-
-par(mfrow=c(1,2))
-plot(prediccion_niños, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_niños, 'overall', xlab='Temperatura', ylab='RR')
-par(mfrow=c(1,1))
-
-
-
-#2) Jóvenes: (15-44)
-base_jovenes<-crossbasis((grupo_jovenes$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
-modelo_jovenes<-glm(grupo_jovenes$defunciones_obs_redondeadas ~ base_jovenes+grupo_jovenes$dow+ns(grupo_jovenes$fecha_defuncion, df=7), family=quasipoisson())
-prediccion_jovenes<-crosspred(base_jovenes, model=modelo_jovenes, cen=20)
-
-par(mfrow=c(1,2))
-plot(prediccion_jovenes, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_jovenes, 'overall', xlab='Temperatura', ylab='RR')
-par(mfrow=c(1,1))
-
-
-
-#3) Adultos: (45-64)
-base_adultos<-crossbasis((grupo_adultos$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
-modelo_adultos<-glm(grupo_adultos$defunciones_obs_redondeadas ~ base_adultos+grupo_adultos$dow+ns(grupo_adultos$fecha_defuncion, df=7), family=quasipoisson())
-prediccion_adultos<-crosspred(base_adultos, model=modelo_adultos, cen=20)
-
-par(mfrow=c(1,2))
-plot(prediccion_adultos, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_adultos, 'overall', xlab='Temperatura', ylab='RR')
-par(mfrow=c(1,1))
-
-
-
-#4) Mayores: (65-74)
-base_mayores<-crossbasis((grupo_mayores$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
-modelo_mayores<-glm(grupo_mayores$defunciones_obs_redondeadas ~ base_mayores+grupo_mayores$dow+ns(grupo_mayores$fecha_defuncion, df=7), family=quasipoisson())
-prediccion_mayores<-crosspred(base_mayores, model=modelo_mayores, cen=20)
-
-par(mfrow=c(1,2))
-plot(prediccion_mayores, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_mayores, 'overall', xlab='Temperatura', ylab='RR')
-par(mfrow=c(1,1))
-
-
-
-#5) Más mayores: (75-84)
-base_mas_mayores<-crossbasis((grupo_mas_mayores$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
-modelo_mas_mayores<-glm(grupo_mas_mayores$defunciones_obs_redondeadas ~ base_mas_mayores+grupo_mas_mayores$dow+ns(grupo_mas_mayores$fecha_defuncion, df=7), family=quasipoisson())
-prediccion_mas_mayores<-crosspred(base_mas_mayores, model=modelo_mas_mayores, cen=20)
-
-par(mfrow=c(1,2))
-plot(prediccion_mas_mayores, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_mas_mayores, 'overall', xlab='Temperatura', ylab='RR')
-par(mfrow=c(1,1))
-
-
-
-#6) Abuelos: (+85)
-base_abuelos<-crossbasis((grupo_abuelos$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
-modelo_abuelos<-glm(grupo_abuelos$defunciones_obs_redondeadas ~ base_abuelos+grupo_abuelos$dow+ns(grupo_abuelos$fecha_defuncion, df=7), family=quasipoisson())
-prediccion_abuelos<-crosspred(base_abuelos, model=modelo_abuelos, cen=20)
-
-par(mfrow=c(1,2))
-plot(prediccion_abuelos, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_abuelos, 'overall', xlab='Temperatura', ylab='RR')
-par(mfrow=c(1,1))
-
-
-
-#7) Más de 65 (+65)
-base_mas65<-crossbasis((grupo_mas65$tmed), lag=30, argvar=list(fun="bs", df=4), arglag=list(fun="bs", df=4))
-modelo_mas65<-glm(grupo_mas65$defunciones_obs_redondeadas ~ base_mas65+grupo_mas65$dow+ns(grupo_mas65$fecha_defuncion, df=7), family=quasipoisson())
-prediccion_mas65<-crosspred(base_mas65, model=modelo_mas65, cen=20)
-
-par(mfrow=c(1,2))
-plot(prediccion_mas65, xlab='Temperatura', ylab='Retardo', zlab='RR')
-plot(prediccion_mas65, 'overall', xlab='Temperatura', ylab='RR')
-par(mfrow=c(1,1))
-
-
-    #No se observan grandes diferencias entre los grupos. En los grupos más jóvenes
-    # se nota que el número de fallecimientos es muy bajo. Para los grupos de edad
-    # más mayores, ya se ven gráficos mucho más parecidos.
-
-    #Se observa lo de siempre. Con temperaturas bajas, el pico del RR se alcanza
-    # tras los primeros días de retardo. Para temperaturas altas, el RR más alto
-    # se alcanza al principio.
-
 

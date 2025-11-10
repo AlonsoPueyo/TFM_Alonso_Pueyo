@@ -83,14 +83,78 @@ Navarra_defunciones_por_mes24<-aggregate(defunciones_observadas~mes, data=Navarr
 Navarra_defunciones_por_mes<-cbind(Navarra_defunciones_por_mes23, Navarra_defunciones_por_mes24)
 Navarra_defunciones_por_mes
 
+  #Calculamos las tasas por 100000 habitantes:
+
+#Trimestre 1 del 2023: (672.155)
+(Navarra_defunciones_por_mes23[1,2]/672155)*100000
+(Navarra_defunciones_por_mes23[2,2]/672155)*100000
+(Navarra_defunciones_por_mes23[3,2]/672155)*100000
+
+#Trimestre 2 del 2023: (672873)
+(Navarra_defunciones_por_mes23[4,2]/672873)*100000
+(Navarra_defunciones_por_mes23[5,2]/672873)*100000
+(Navarra_defunciones_por_mes23[6,2]/672873)*100000
+
+#Trimestre 3 del 2023: (674.290)
+(Navarra_defunciones_por_mes23[7,2]/674290)*100000
+(Navarra_defunciones_por_mes23[8,2]/674290)*100000
+(Navarra_defunciones_por_mes23[9,2]/674290)*100000
+
+#Trimestre 4 del 2023: (676.571)
+(Navarra_defunciones_por_mes23[10,2]/676571)*100000
+(Navarra_defunciones_por_mes23[11,2]/676571)*100000
+(Navarra_defunciones_por_mes23[12,2]/676571)*100000
+
+###
+
+#Trimestre 1 del 2024: (678.333)
+(Navarra_defunciones_por_mes24[1,2]/678333)*100000
+(Navarra_defunciones_por_mes24[2,2]/678333)*100000
+(Navarra_defunciones_por_mes24[3,2]/678333)*100000
+
+#Trimestre 2 del 2024: (679.548)
+(Navarra_defunciones_por_mes24[4,2]/679548)*100000
+(Navarra_defunciones_por_mes24[5,2]/679548)*100000
+(Navarra_defunciones_por_mes24[6,2]/679548)*100000
+
+#Trimestre 3 del 2024: (680.484)
+(Navarra_defunciones_por_mes24[7,2]/680484)*100000
+(Navarra_defunciones_por_mes24[8,2]/680484)*100000
+(Navarra_defunciones_por_mes24[9,2]/680484)*100000
+
+#Trimestre 4 del 2024: (682.134)
+(Navarra_defunciones_por_mes24[10,2]/682134)*100000
+(Navarra_defunciones_por_mes24[11,2]/682134)*100000
+(Navarra_defunciones_por_mes24[12,2]/682134)*100000
+
+
+tasas_Navarra23<-c((Navarra_defunciones_por_mes23[1,2]/672155)*100000, (Navarra_defunciones_por_mes23[2,2]/672155)*100000, (Navarra_defunciones_por_mes23[3,2]/672155)*100000,
+                   (Navarra_defunciones_por_mes23[4,2]/672873)*100000, (Navarra_defunciones_por_mes23[5,2]/672873)*100000, (Navarra_defunciones_por_mes23[6,2]/672873)*100000,
+                   (Navarra_defunciones_por_mes23[7,2]/674290)*100000, (Navarra_defunciones_por_mes23[8,2]/674290)*100000, (Navarra_defunciones_por_mes23[9,2]/674290)*100000,
+                   (Navarra_defunciones_por_mes23[10,2]/676571)*100000, (Navarra_defunciones_por_mes23[11,2]/676571)*100000, (Navarra_defunciones_por_mes23[12,2]/676571)*100000)
+
+tasas_Navarra24<-c((Navarra_defunciones_por_mes24[1,2]/678333)*100000, (Navarra_defunciones_por_mes24[2,2]/678333)*100000, (Navarra_defunciones_por_mes24[3,2]/678333)*100000,
+                   (Navarra_defunciones_por_mes24[4,2]/679548)*100000, (Navarra_defunciones_por_mes24[5,2]/679548)*100000, (Navarra_defunciones_por_mes24[6,2]/679548)*100000,
+                   (Navarra_defunciones_por_mes24[7,2]/680484)*100000, (Navarra_defunciones_por_mes24[8,2]/680484)*100000, (Navarra_defunciones_por_mes24[9,2]/680484)*100000,
+                   (Navarra_defunciones_por_mes24[10,2]/682134)*100000, (Navarra_defunciones_por_mes24[11,2]/682134)*100000, (Navarra_defunciones_por_mes24[12,2]/682134)*100000)
+
+tasas<-cbind(tasas_Navarra23, tasas_Navarra24)
+tasas
+
 
 #En gráfico:
-par(mfrow=c(2,2))
-plot(Navarra_tmed_por_mes23$mes, Navarra_tmed_por_mes23$tmed, xlab='Mes (2023)', ylab='Temperatura media (Navarra)', pch=16)
-plot(Navarra_defunciones_por_mes23$mes, Navarra_defunciones_por_mes23$defunciones_observadas, xlab='Mes (2023)', ylab='Defunciones observadas (Navarra)', pch=16)
+meses=c('Enero', 'Feb.', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Sept.', 'Octubre', 'Noviembre', 'Diciembre')
 
-plot(Navarra_tmed_por_mes24$mes, Navarra_tmed_por_mes24$tmed, xlab='Mes (2024)', ylab='Temperatura media (Navarra)', pch=16)
-plot(Navarra_defunciones_por_mes24$mes, Navarra_defunciones_por_mes24$defunciones_observadas, xlab='Mes (2024)', ylab='Defunciones observadas (Navarra)', pch=16)
+par(mfrow=c(2,2))
+plot(Navarra_tmed_por_mes23$mes, Navarra_tmed_por_mes23$tmed, type='b', xaxt='n', xlab='Mes (2023)', ylab='Temperatura media (Navarra)', pch=16)
+  axis(1, at=1:12, labels=meses)
+plot(Navarra_defunciones_por_mes23$mes, tasas_Navarra23, type='b', xaxt='n', xlab='Mes (2023)', ylab='Tasa de mortalidad (Navarra)', pch=16)
+  axis(1, at=1:12, labels=meses)
+
+plot(Navarra_tmed_por_mes24$mes, Navarra_tmed_por_mes24$tmed, type='b', xaxt='n', xlab='Mes (2024)', ylab='Temperatura media (Navarra)', pch=16)
+  axis(1, at=1:12, labels=meses)
+plot(Navarra_defunciones_por_mes24$mes, tasas_Navarra24, type='b', xaxt='n', xlab='Mes (2024)', ylab='Tasa de mortalidad (Navarra)', pch=16)
+  axis(1, at=1:12, labels=meses)
 par(mfrow=c(1,1))
 
 #---
@@ -98,24 +162,24 @@ par(mfrow=c(1,1))
 #2) Suma de defunciones por rangos de temperatura
 
 Navarra_temp_menor10_23<-filter(Navarra_defunciones_diarias23, tmed<10)
-sum(Navarra_temp_menor10_23$defunciones_observadas, na.rm=TRUE)
+(sum(Navarra_temp_menor10_23$defunciones_observadas, na.rm=TRUE)/676571)*100000
 Navarra_temp_menor10_24<-filter(Navarra_defunciones_diarias24, tmed<10)
-sum(Navarra_temp_menor10_24$defunciones_observadas, na.rm=TRUE)
+(sum(Navarra_temp_menor10_24$defunciones_observadas, na.rm=TRUE)/682134)*100000
 
 Navarra_temp_entre_10_20_23<-filter(Navarra_defunciones_diarias23, tmed>=10 & tmed<20)
-sum(Navarra_temp_entre_10_20_23$defunciones_observadas, na.rm=TRUE)
+(sum(Navarra_temp_entre_10_20_23$defunciones_observadas, na.rm=TRUE)/676571)*100000
 Navarra_temp_entre_10_20_24<-filter(Navarra_defunciones_diarias24, tmed>=10 & tmed<20)
-sum(Navarra_temp_entre_10_20_24$defunciones_observadas, na.rm=TRUE)
+(sum(Navarra_temp_entre_10_20_24$defunciones_observadas, na.rm=TRUE)/682134)*100000
 
 Navarra_temp_entre_20_30_23<-filter(Navarra_defunciones_diarias23, tmed>=20 & tmed<30)
-sum(Navarra_temp_entre_20_30_23$defunciones_observadas, na.rm=TRUE)
+(sum(Navarra_temp_entre_20_30_23$defunciones_observadas, na.rm=TRUE)/676571)*100000
 Navarra_temp_entre_20_30_24<-filter(Navarra_defunciones_diarias24, tmed>=20 & tmed<30)
-sum(Navarra_temp_entre_20_30_24$defunciones_observadas, na.rm=TRUE)
+(sum(Navarra_temp_entre_20_30_24$defunciones_observadas, na.rm=TRUE)/682134)*100000
 
 Navarra_temp_mas30_23<-filter(Navarra_defunciones_diarias23, tmed>=30)
-sum(Navarra_temp_mas30_23$defunciones_observadas, na.rm=TRUE)
+(sum(Navarra_temp_mas30_23$defunciones_observadas, na.rm=TRUE)/676571)*100000
 Navarra_temp_mas30_24<-filter(Navarra_defunciones_diarias24, tmed>=30)
-sum(Navarra_temp_mas30_24$defunciones_observadas, na.rm=TRUE)
+(sum(Navarra_temp_mas30_24$defunciones_observadas, na.rm=TRUE)/682134)*100000
   
   #En la última sale 0 porque no hay ningún día en 2024 en el que la temperatura
   # media haya superado los 30ºC. En el 2024 solo hay dos observaciones...
