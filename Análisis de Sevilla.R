@@ -117,12 +117,12 @@ tasas
 meses=c('Enero', 'Feb.', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Sept.', 'Octubre', 'Noviembre', 'Diciembre')
 
 par(mfrow=c(2,2))
-plot(Sevilla_tmed_por_mes23$mes, Sevilla_tmed_por_mes23$tmed, type='b', xaxt='n', xlab='Mes (2023)', ylab='Temperatura media (Sevilla)', pch=16)
+plot(Sevilla_tmed_por_mes23$mes, Sevilla_tmed_por_mes23$tmed, type='b', xaxt='n', xlab='Mes (2023)', ylab='Temperatura media (Sevilla)', pch=16, ylim=c(10,30))
 axis(1, at=1:12, labels=meses)
 plot(Sevilla_defunciones_por_mes23$mes, tasas_Sevilla23, type='b', xaxt='n', xlab='Mes (2023)', ylab='Tasa de mortalidad (Sevilla)', pch=16)
 axis(1, at=1:12, labels=meses)
 
-plot(Sevilla_tmed_por_mes24$mes, Sevilla_tmed_por_mes24$tmed, type='b', xaxt='n', xlab='Mes (2024)', ylab='Temperatura media (Sevilla)', pch=16)
+plot(Sevilla_tmed_por_mes24$mes, Sevilla_tmed_por_mes24$tmed, type='b', xaxt='n', xlab='Mes (2024)', ylab='Temperatura media (Sevilla)', pch=16, ylim=c(10,30))
 axis(1, at=1:12, labels=meses)
 plot(Sevilla_defunciones_por_mes24$mes, tasas_Sevilla24, type='b', xaxt='n', xlab='Mes (2024)', ylab='Tasa de mortalidad (Sevilla)', pch=16)
 axis(1, at=1:12, labels=meses)

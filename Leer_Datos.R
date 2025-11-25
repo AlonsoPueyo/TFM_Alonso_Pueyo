@@ -121,4 +121,3 @@ saveRDS(momo_provincial_temp, "momo_provincial_temp.rds")
 momo_provincial_temp <- readRDS("momo_provincial_temp.rds")
   #Ya tenemos guardados los datos de momo junto a las temperaturas que hizo
   #cada día en cada sitio.
-

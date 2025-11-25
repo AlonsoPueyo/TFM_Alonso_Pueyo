@@ -171,12 +171,12 @@ meses=c('Enero', 'Feb.', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', '
 par(mfrow=c(2,2))
 plot(tmed_por_mes23$mes, tmed_por_mes23$tmed, type='b', xaxt='n', xlab='Mes (2023)', ylab='Temperatura media', pch=16)
   axis(1, at=1:12, labels=meses)
-plot(defunciones_por_mes23$mes, tasas23, type='b', xaxt='n', xlab='Mes(2023)', ylab='Tasa de mortalidad por 100000 habitantes', pch=16)  
+plot(defunciones_por_mes23$mes, tasas23, type='b', xaxt='n', xlab='Mes(2023)', ylab='Tasa de mortalidad por 100000 habitantes', pch=16, ylim=c(65,100))  
   axis(1, at=1:12, labels=meses)
 
 plot(tmed_por_mes24$mes, tmed_por_mes24$tmed, type='b', xaxt='n', xlab='Mes (2024)', ylab='Temperatura media', pch=16)
   axis(1, at=1:12, labels=meses)
-plot(defunciones_por_mes24$mes, tasas24, type='b', xaxt='n', xlab='Mes(2024)', ylab='Tasa de mortalidad por 100000 habitantes', pch=16)  
+plot(defunciones_por_mes24$mes, tasas24, type='b', xaxt='n', xlab='Mes(2024)', ylab='Tasa de mortalidad por 100000 habitantes', pch=16, ylim=c(65,100))  
   axis(1, at=1:12, labels=meses)
 par(mfrow=c(1,1))
       #El hecho de que haya más defunciones en los meses 
